@@ -22,7 +22,12 @@ With this scripts you will be able to execute the next processes:
 
 All is explained in the [Odrive-cli](https://docs.odrive.com/docs/odrive-cli) documentation.
 
-Once you have the folder, you can use the `odr` as standalone, or you can send it to a bin folder in order to use it as a inline command.
+##	Installation 
+
+Once you have the mounted folder, you can use the `odr` as standalone, or you can send it to a bin folder in order to use it as a inline command.
+
+But first, you have to clone the repository:
+`git clone https://github.com/Bloodfield/Odrish.git`
 
 ### Standalone
 ```Bash
