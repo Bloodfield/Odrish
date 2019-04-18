@@ -1,9 +1,11 @@
 #	Odrish	#
 
 Odrish a group of easy to use Bash scripts for Odrive client.
-The aim is to have the program running 
+The aim is to have the program running  from the command line, fast and easy to use.
+There are many other repositories out there that give more functions, or more straight forward implementation.
+However, this are the ones I use as base.
 
-Whit this scripts you will be able to execute the next processes:
+With this scripts you will be able to execute the next processes:
 
 + sync data (also recursively)
 + refresh files (also recursively)
@@ -27,7 +29,7 @@ Once you have the folder, you can use the `odr` as standalone, or you can send i
 $ ./$DIR/odr [command] [args] [file]
 ```
 
-### inline command
+### Inline command
 ```Bash
 $ odr [command] [args] [file]
 ```
@@ -41,7 +43,7 @@ After that, you can use it as inline command
 
 ##	Commands
 
-`ord` allows you to manage your local data in the Odrive-Cli files
+`odr` allows you to manage your local data in the Odrive-Cli files
 ```
 	Developer: Bloodfield
 	In each of the following Commands, it is explained the operation, arguments and use of them:
@@ -83,3 +85,8 @@ After that, you can use it as inline command
 			$ odr rm [file | folder]
 	
 ```
+
+##	TODO
+
++ Add premium functions
++ Add file tracking for specific files
