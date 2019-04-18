@@ -42,7 +42,7 @@ $ odr [command] [args] [file]
 ### Extra option
 You can also create en alias on your *./bashrc* file replacing `DIR` whith the path of the odr file
 ```
-$ echo 'alias odr="[DIR]/odr"' >> ~/bashrc
+$ echo 'alias odr="[DIR]/odr"' >> ~/.bashrc
 ```
 After that, you can use it as inline command
 
