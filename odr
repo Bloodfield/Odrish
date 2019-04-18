@@ -1,0 +1,274 @@
+#!/bin/bash
+
+#   Script para manejar los scripts de odrive utilizados
+#   odr
+#   Para odrive 
+#   Por Edgar Chávez
+
+# TODO
+
+#   variables
+odrive="$HOME/.odrive-agent/bin/odrive.py"
+comando=$1
+
+if [[ $comando == "help" ]]
+	then
+	printf "ord allows you to manage your local data in the Odrive-Cli files
+	Developer: Bloodfield
+	In each of the following Commands, it is explained the operation, arguments and use of them:
+		help
+			Gives help menu
+			Does not use arguments
+			$ odr help 
+		init
+			Initializes the client
+			Does not use arguments
+			$ odr init
+		shutdown
+			Closes the client
+			Does not use arguments
+			$ odr shutdown
+		refresh
+			Makes represh in the file or folder
+			-r
+				Recursive refreshinf in case of folders
+			File, folder or placeholder
+			$ odr refresh [-r] [file | folder | placeholder]
+		sync
+			sync placeholder
+			-r
+				Recursive sync in case of a folder
+			placeholder or folder
+			$ odr sync [-r] [placeholder | folder ]
+		status
+			Shows the general status
+			Does not use arguments
+			$ odr status
+		cd
+			syncs a folder an the folders that first folders it contains
+			folder
+			$ odr cd [folder]
+		rm
+			deletes a file or folder, both locally and in the cloud
+			file or folder
+			$ odr rm [file | folder]
+	"	
+	exit
+fi
+if [[ $comando == "init" ]]
+	then
+	nohup "$HOME/.odrive-agent/bin/odriveagent" > /dev/null 2>&1 &
+	exit
+fi
+if [[ $comando == "shutdown" ]]
+	then
+	python "$odrive" shutdown
+	exit
+fi
+if [[ $comando == "refresh" ]]
+	then
+	if [[ $2 == "-r" ]]
+		then
+		argumento="r"
+		directorio=$3
+	else
+		argumento=" "
+		directorio=$2
+	fi
+	
+	if [ ! -e "$directorio" ]
+		then
+		echo "Err : refresh : $directorio does not exist"
+		exit
+	fi
+
+	#   refresh
+	if [[ $directorio =~ .*\.cloud$ ]]
+		then
+		exit
+	fi
+
+	if [[ $directorio =~ .*\.cloudf ]]
+		then
+		python "$odrive" sync "$directorio"
+		while [[ $(python "$odrive" syncstate "$directorio") =~ 'Active.*' ]]; do
+			sleep 2
+		done
+		directorio=$(echo $directorio | sed 's/\(.*\)\.cloudf/\1/')
+	fi
+	python "$odrive" refresh "$directorio"
+	while [[ $(python "$odrive" syncstate "$directorio") =~ 'Active.*' ]]; do
+		sleep 2
+	done
+
+	#   recursividad
+	
+	if [[ $argumento == "r" ]]
+	then 
+		archivos=($(ls -l "$directorio"| grep "^d" | tr -s " " | cut -d" " -f9-  | tr " " ¬))
+		for i in "${archivos[@]}"
+		do
+			echo $(echo $i | tr ¬ " ")
+			odr refresh -r "$directorio/$(echo $i | tr ¬ " ")"
+		done
+
+
+		archivos=($(ls -l "$directorio" | grep "cloudf$" | tr -s " " | cut -d" " -f9-  | tr " " ¬))
+		for i in "${archivos[@]}"
+		do
+			echo $(echo $i | tr ¬ " ")
+			odr refresh -r "$directorio/$(echo $i | tr ¬ " ")"
+		done
+	fi
+	
+	find "$directorio" -name "*.cloudf"
+	exit
+fi
+if [[ $comando == "sync" ]]
+	then
+	if [[ $2 == "-r" ]]
+		then
+		argumento="r"
+		directorio=$3
+	else
+		argumento=" "
+		directorio=$2
+	fi
+	
+	if [ ! -e "$directorio" ]
+		then
+		echo "Err : sync : $directorio does not exist"
+		exit
+	fi
+
+	#   refresh
+
+	if [[ $directorio =~ .*\.cloud$ ]]
+		then
+		python "$odrive" sync "$directorio"
+		while [[ $(python "$odrive" syncstate "$directorio") =~ 'Active.*' ]]; do
+			sleep 2
+		done
+		exit
+	fi
+	if [[ $directorio =~ .*\.cloudf ]]
+		then
+		python "$odrive" sync "$directorio"
+		while [[ $(python "$odrive" syncstate "$directorio") =~ 'Active.*' ]]; do
+			sleep 2
+		done
+		directorio=$(echo $directorio | sed 's/\(.*\)\.cloudf/\1/')
+	fi
+	python "$odrive" refresh "$directorio"
+	while [[ $(python "$odrive" syncstate "$directorio") =~ 'Active.*' ]]; do
+		sleep 2
+	done
+
+	#   recursividad de sync
+	if [[ $argumento == "r" ]]
+	then 
+	
+		archivos=($(ls -l "$directorio"| grep "^d" | tr -s " " | cut -d" " -f9-  | tr " " ¬))
+		for i in "${archivos[@]}"
+		do
+			echo $(echo $i | tr ¬ " ")
+			odr sync -r "$directorio/$(echo $i | tr ¬ " ")"
+		done
+
+		archivos=($(ls -l "$directorio" | grep "cloud[f]*$" | tr -s " " | cut -d" " -f9-  | tr " " ¬))
+		for i in "${archivos[@]}"
+		do
+			echo $(echo $i | tr ¬ " ")
+			odr sync -r "$directorio/$(echo $i | tr ¬ " ")"
+		done
+	fi
+	
+	find "$directorio" -name "*.cloud*"
+
+	exit
+fi
+if [[ $comando == "status" ]]
+	then
+	python "$odrive" status
+	exit
+fi
+if [[ $comando == "cd" ]]
+	then
+	
+	#check if file exist
+	directorio=$2
+	if [ ! -d "$directorio" ]
+	then
+		echo "Err : odr cd : $directorio no es un directorio o no existe"
+		exit
+	fi;
+
+	#   refresh
+
+	python "$odrive" refresh $directorio
+	while [[ $(python "$odrive" syncstate "$directorio") =~ 'Active.*' ]]; do
+	sleep 2
+	done
+
+	archivos=($(ls -l "$directorio" | grep "cloudf$" | tr -s " " | cut -d" " -f9-  | tr " " ¬))
+	for i in "${archivos[@]}"
+	do
+		echo $(echo $i | tr ¬ " ")
+		temp="$directorio/$(echo $i | tr ¬ " ")"
+		python "$odrive" sync "$temp"
+		while [[ $(python "$odrive" syncstate "$temp") =~ 'Active.*' ]]; do
+			sleep 2
+		done
+	done
+	exit
+fi
+if [[ $comando == "rm" ]]
+	then
+	
+	
+	if [[ $2 == "-r" ]]
+		then
+		argumento="r"
+		directorio=$3
+	else
+		argumento=" "
+		directorio=$2
+	fi
+	
+	if [ ! -e "$directorio" ]
+		then
+		echo "$directorio no xiste"
+		exit
+	fi
+	
+	#   refresh
+
+	if [[ $directorio =~ .*\.cloud$ ]]
+		then
+		echo "Err : odr rm : los manejadores no son válidos"
+		exit
+	fi
+	if [[ $directorio =~ .*\.cloudf ]]
+		then
+		echo "Err : odr rm : los manejadores no son válidos"
+		exit
+	fi
+	rm -R $directorio
+	python "$odrive" refresh .
+	while [[ $(python "$odrive" status | grep Trash: | cut -f2 -d" " ) -eq '0' ]]; do
+	sleep 2
+	done
+	python "$odrive" emptytrash
+
+	exit
+fi
+
+echo " Err : comando no reconocido. Opciones:"
+echo "	help"
+echo "	init"
+echo "	shutdown"
+echo "	refresh"
+echo "	sync"
+echo "	status"
+echo "	cd"
+echo "	rm"
