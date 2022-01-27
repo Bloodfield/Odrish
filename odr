@@ -5,8 +5,7 @@
 #   By	Bloodfield
 
 ##	TODO
-#	gion de args? pueden usarse sin orden tal vez
-# #	corroborar las verificaciones de -f -d -e
+#	cd *.cloudf
 #	review mv, cd, rm, 
 #	comillas
 #	manejo de error
@@ -26,6 +25,10 @@ if [[ $comando == "help" ]]
 			Gives help menu
 			Does not use arguments
 			$ odr help 
+		auth
+			Sets up an authenticate key
+			uses only the key
+			$ odr auth 00000000-0000-0000-0000-000000000000-00000000
 		init
 			Initializes the client
 			Does not use arguments
@@ -36,21 +39,34 @@ if [[ $comando == "help" ]]
 			Does not use arguments
 			$ odr shutdown
 			[Is not needed if you had configured ~/.config/systemd/user/odrive.service]
-		refresh
-			Makes refresh in the file or folder
-			-r
-				Recursive refreshing
-			$ odr refresh -[r | s] [folderpath]
-		sync
-			sync placeholder
-			-r
-				Recursive sync in case of a folder
-			placeholder or folder
-			$ odr sync [-r] [placeholder | folder ]
 		status
 			Shows the general status
 			Does not use arguments
 			$ odr status
+		mount
+			sets a local directory with a cloud directory
+			the local directory is in the computer, do not use back tracked files
+			the odrive directory has / as the root for all the services in the cloud
+			$ odr mount /home/user/odrive /
+		lsmount
+			shows where the directory is mounted
+			$ odr lsmount
+		unmount
+			removes the mounted directory
+			$ odr unmount
+		refresh
+			Makes refresh in the file or folder
+			r
+				Recursive refreshing synced files
+			s
+				Recursive refreshing synced files and handlers
+			$ odr refresh [r | s] [folderpath]
+		sync
+			sync placeholder
+			r
+				Recursive sync in case of a folder
+			placeholder or folder
+			$ odr sync [r] [placeholder | folder ]
 		cd
 			syncs a folder an the folders that first folders it contains
 			folder
@@ -73,7 +89,7 @@ fi
 #	Starts service if not configured as automatic
 if [[ $comando == "init" ]]
 	then
-	nohup "~/.odrive-agent/bin/odriveagent" > /dev/null 2>&1 &
+	nohup "$HOME/.odrive-agent/bin/odriveagent" > /dev/null 2>&1 &
 	exit
 fi
 
@@ -102,20 +118,28 @@ if [[ $comando == "mount" ]]
 	fi
 	
 	#	check if there is something mounted exit
-	mountconfig=$(grep mountdir ~/.Odrish/config)
-	if [[ ! -z "$mountconfig" ]]; then
+	if [[ ! -z "$mountdir" ]]; then
 		echo "Already mounted:"
-		echo $mountconfig
+		echo $mountdir
 		exit
 	fi
 	
 	#	Add mounting directory
-	echo "alias mountdir=\"$2\"" >> ~/.Odrish/config
+	
+	dir=""
+	if [[ ${2:0:1} == "/" ]] ;
+	then 
+	dir=$2
+	else
+	dir="$PWD/$2"
+	fi
+	
+	echo "alias mountdir=\"$dir\"" >> ~/.Odrish/config
 	
 	if [[ $# -gt 2 ]]; then
-		odrive mount $2 $3
+		odrive mount $dir $3
 	else
-		odrive mount $2 /
+		odrive mount $dir /
 	fi
 	
 	exit
@@ -124,26 +148,17 @@ fi
 #	List mounted
 if [[ $comando == "lsmount" ]]
 	then
-	grep mountdir ~/.Odrish/conifg
+	echo $mountdir
 	exit
 fi
 
 #	Unmount directory
 if [[ $comando == "unmount" ]]
 	then
-	if [ ! -d $2 ]; then
-		echo "Directory $2 does not exist"
-		exit
-	fi
-	
-	if [[ $# -gt 0 ]]; then
-		#	when directory is given
-		odrive unmount $2
-		sed -i "/alias mountdir=$2/d" ~/.Odrish/config
-	else
-		#	when directory isn't given
+	if [ -z "$mountdir" ]; then
+		#	when there is mount point
 		odrive unmount $mountdir
-		sed -i "/alias mountdir=$mountdir/d" ~/.Odrish/config
+		sed -i '/^mountdir.*$/d' ~/.Odrish/config
 	fi
 	exit
 fi
@@ -151,7 +166,7 @@ fi
 #	Refresh
 if [[ $comando == "refresh" ]]
 	then
-	if [[ $2 == "-r" ]]
+	if [[ $2 == "r" ]]
 		then
 		argumento="r"
 		directorio=$3
@@ -186,34 +201,16 @@ if [[ $comando == "refresh" ]]
 		sleep 2
 	done
 
-	#	r recursive refresh only of synced folders
-	if [[ $argumento == "r" ]]
-	then 
-		archivos=($(ls -l "$directorio"| grep "^d" | tr -s " " | cut -d" " -f9-  | tr " " ¬))
-		for i in "${archivos[@]}"
-		do
-			echo $(echo $i | tr ¬ " ")
-			odr refresh -r "$directorio/$(echo $i | tr ¬ " ")"
-		done
-		exit
-	fi
 	
 	
 	#   recursive refresh of all folders including handlers
-	if [[ $argumento == "s" ]]
+	if [[ $argumento == "r" ]]
 	then 
-		archivos=($(ls -l "$directorio"| grep "^d" | tr -s " " | cut -d" " -f9-  | tr " " ¬))
-		for i in "${archivos[@]}"
-		do
-			echo $(echo $i | tr ¬ " ")
-			odr refresh -r "$directorio/$(echo $i | tr ¬ " ")"
-		done
-		
 		archivos=($(ls -l "$directorio" | grep "cloudf$" | tr -s " " | cut -d" " -f9-  | tr " " ¬))
 		for i in "${archivos[@]}"
 		do
 			echo $(echo $i | tr ¬ " ")
-			odr refresh -r "$directorio/$(echo $i | tr ¬ " ")"
+			odr refresh r "$directorio/$(echo $i | tr ¬ " ")"
 		done
 		
 		#	Reportar problemas en el log
@@ -230,7 +227,7 @@ fi
 #	Sync
 if [[ $comando == "sync" ]]
 	then
-	if [[ $2 == "-r" ]]
+	if [[ $2 == "r" ]]
 		then
 		argumento="r"
 		directorio=$3
@@ -333,6 +330,8 @@ if [[ $comando == "cd" ]]
 			sleep 2
 		done
 	done
+	
+	cd $directorio
 	exit
 fi
 #	odrivish rm
@@ -390,6 +389,7 @@ fi
 #	autolocalsync
 
 echo " Err : comando no reconocido. Opciones:"
+
 echo "	help"
 echo "	init"
 echo "	shutdown"

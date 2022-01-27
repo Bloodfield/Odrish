@@ -10,7 +10,6 @@ if [[ $# -gt 0 ]]; then
 		if [[ $2 == "A" ]]; then
 			rm -Rf $od
 		fi
-		rm -Rf od="$HOME/.odrive-agent/bin"
 		rm -Rf ~/.Odrish
 		rm -f ~/.local/bin/odr
 		echo "Uninstalled"
