@@ -2,6 +2,7 @@
 
 od="~/.odrive-agent/bin"
 
+exit
 if [[ $# -gt 0 ]]; then
 
 	##	UNISTALL
