@@ -147,5 +147,6 @@ odr rm [file | folder]
 
 ##	TODO
 
-+ Add a installer
++ change comments to english
++ cd to a .cloudf
 

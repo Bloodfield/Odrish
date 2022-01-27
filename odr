@@ -6,9 +6,7 @@
 
 ##	TODO
 #	cd *.cloudf
-#	review mv, cd, rm, 
-#	comillas
-#	manejo de error
+#	to eng
 
 #   variables
 shopt -s expand_aliases
@@ -277,14 +275,14 @@ if [[ $comando == "sync" ]]
 		for i in "${archivos[@]}"
 		do
 			echo $(echo $i | tr ¬ " ")
-			odr sync -r "$directorio/$(echo $i | tr ¬ " ")"
+			odr sync r "$directorio/$(echo $i | tr ¬ " ")"
 		done
 
 		archivos=($(ls -l "$directorio" | grep "cloud[f]*$" | tr -s " " | cut -d" " -f9-  | tr " " ¬))
 		for i in "${archivos[@]}"
 		do
 			echo $(echo $i | tr ¬ " ")
-			odr sync -r "$directorio/$(echo $i | tr ¬ " ")"
+			odr sync r "$directorio/$(echo $i | tr ¬ " ")"
 		done
 		
 		#	Reportar problemas en el log
@@ -376,25 +374,6 @@ if [[ $comando == "rm" ]]
 	exit
 fi
 
-#	odrivish mv
 
-#	Add target
-
-#	Sync Target(s)
-
-#	(un)set localsync
-
-#	localsync sync
-
-#	autolocalsync
-
-echo " Err : comando no reconocido. Opciones:"
-
-echo "	help"
-echo "	init"
-echo "	shutdown"
-echo "	refresh"
-echo "	sync"
-echo "	status"
-echo "	cd"
-echo "	rm"
+echo " Err : Command not recognized"
+echo " odr help"
