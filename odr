@@ -7,6 +7,7 @@
 ##	TODO
 #	cd *.cloudf
 #	to eng
+#	targueted refresh 
 
 #   variables
 shopt -s expand_aliases
@@ -204,20 +205,13 @@ if [[ $comando == "refresh" ]]
 	#   recursive refresh of all folders including handlers
 	if [[ $argumento == "r" ]]
 	then 
-		archivos=($(ls -l "$directorio" | grep "cloudf$" | tr -s " " | cut -d" " -f9-  | tr " " ¬))
+		archivos=($(ls -l "$directorio" | grep "^d" | tr -s " " | cut -d" " -f9-  | tr " " ¬))
 		for i in "${archivos[@]}"
 		do
 			echo $(echo $i | tr ¬ " ")
 			odr refresh r "$directorio/$(echo $i | tr ¬ " ")"
 		done
 		
-		#	Reportar problemas en el log
-		archivos=($(ls -l "$directorio" | grep "cloudf$" | tr -s " " | cut -d" " -f9-  ))
-		if [[ ! -z "$archivos" ]]; then
-			date >> ~/.Odrish/Log
-			echo refresh failed for: >> ~/.Odrish/Log
-			echo $archivos >> ~/.Odrish/Log
-		fi
 	fi
 	exit
 fi
