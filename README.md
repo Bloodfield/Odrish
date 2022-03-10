@@ -149,4 +149,6 @@ odr rm [file | folder]
 
 + change comments to english
 + cd to a .cloudf
++ Add updater
++ target sync / refresh
 

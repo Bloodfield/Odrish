@@ -162,6 +162,13 @@ if [[ $comando == "unmount" ]]
 	exit
 fi
 
+#	Empty trash
+if [[ $comando == "emptytrash" ]]
+	then
+	odrive emptytrash
+	exit
+fi
+
 #	Refresh
 if [[ $comando == "refresh" ]]
 	then
