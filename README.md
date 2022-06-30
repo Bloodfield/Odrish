@@ -14,7 +14,6 @@ Administrative processes:
 
 Update
 + sync data (also recursively)
-+ unsync a file or folder
 + refresh files (also recursively)
 
 Surf trough the files
@@ -109,7 +108,7 @@ Makes represh in the file or folder
 Recursive refreshinf in case of folders
 File, folder or placeholder
 ```
-$ odr refresh -[r | s] [file | folder | placeholder]
+$ odr refresh [r | s] [file | folder | placeholder]
 ```
 ###		sync
 sync placeholder
@@ -117,14 +116,25 @@ sync placeholder
 Recursive sync in case of a folder
 placeholder or folder
 ```
-odr sync [-r] [placeholder | folder ]
+odr sync [r] [placeholder | folder ]
 ```
 ###		status
 Shows the general status
-Does not use arguments
 ```
-odr status
+odr status [args]
 ```
+args:
+      -h, --help       show this help message and exit
+      --mounts         get status on mounts
+      --backups        get status on backup jobs
+      --sync_requests  get status on sync requests
+      --uploads        get status on uploads
+      --downloads      get status on downloads
+      --background     get status on background requests
+      --trash          get status of trash items
+      --waiting        get status of waiting items
+      --not_allowed    get status of not allowed items
+
 ###		cd
 syncs a folder an the folders that first folders it contains
 folder
@@ -147,7 +157,6 @@ odr rm [file | folder]
 
 ##	TODO
 
-+ change comments to english
 + cd to a .cloudf
 + Add updater
 + target sync / refresh

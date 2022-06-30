@@ -40,8 +40,18 @@ if [[ $comando == "help" ]]
 			[Is not needed if you had configured ~/.config/systemd/user/odrive.service]
 		status
 			Shows the general status
-			Does not use arguments
-			$ odr status
+			$ odr status [args]
+			args:
+				-h, --help       show this help message and exit
+				--mounts         get status on mounts
+				--backups        get status on backup jobs
+				--sync_requests  get status on sync requests
+				--uploads        get status on uploads
+				--downloads      get status on downloads
+				--background     get status on background requests
+				--trash          get status of trash items
+				--waiting        get status of waiting items
+				--not_allowed    get status of not allowed items
 		mount
 			sets a local directory with a cloud directory
 			the local directory is in the computer, do not use back tracked files
@@ -103,10 +113,11 @@ fi
 
 if [[ $comando == "status" ]]
 	then
-	odrive status
+	odrive status $2
 	cat ~/.Odrish/config
 	exit
 fi
+
 
 #	Mount directory
 if [[ $comando == "mount" ]]
@@ -213,11 +224,13 @@ if [[ $comando == "refresh" ]]
 	if [[ $argumento == "r" ]]
 	then 
 		archivos=($(ls -l "$directorio" | grep "^d" | tr -s " " | cut -d" " -f9-  | tr " " ¬))
+		if [[ ! -z "$archivos" ]]; then
 		for i in "${archivos[@]}"
 		do
 			echo $(echo $i | tr ¬ " ")
 			odr refresh r "$directorio/$(echo $i | tr ¬ " ")"
 		done
+		fi
 		
 	fi
 	exit
@@ -273,21 +286,25 @@ if [[ $comando == "sync" ]]
 	then 
 	
 		archivos=($(ls -l "$directorio"| grep "^d" | tr -s " " | cut -d" " -f9-  | tr " " ¬))
+		if [[ ! -z "$archivos" ]]; then
 		for i in "${archivos[@]}"
 		do
 			echo $(echo $i | tr ¬ " ")
 			odr sync r "$directorio/$(echo $i | tr ¬ " ")"
 		done
+		fi
 
 		archivos=($(ls -l "$directorio" | grep "cloud[f]*$" | tr -s " " | cut -d" " -f9-  | tr " " ¬))
+		if [[ ! -z "$archivos" ]]; then
 		for i in "${archivos[@]}"
 		do
 			echo $(echo $i | tr ¬ " ")
 			odr sync r "$directorio/$(echo $i | tr ¬ " ")"
 		done
+		fi
 		
 		#	Reportar problemas en el log
-		archivos=($(ls -l "$directorio" | grep "cloud[f]*$" | tr -s " " | cut -d" " -f9-  ))
+		archivos=($(find $directorio -iname '*cloud*' ))
 		if [[ ! -z "$archivos" ]]; then
 			date >> ~/.Odrish/Log
 			echo sync failed for: >> ~/.Odrish/Log
@@ -320,6 +337,7 @@ if [[ $comando == "cd" ]]
 	done
 
 	archivos=($(ls -l "$directorio" | grep "cloudf$" | tr -s " " | cut -d" " -f9-  | tr " " ¬))
+	if [[ ! -z "$archivos" ]]; then
 	for i in "${archivos[@]}"
 	do
 		echo $(echo $i | tr ¬ " ")
@@ -329,6 +347,7 @@ if [[ $comando == "cd" ]]
 			sleep 2
 		done
 	done
+	fi
 	
 	cd $directorio
 	exit
