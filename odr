@@ -77,7 +77,7 @@ if [[ $comando == "help" ]]
 			placeholder or folder
 			$ odr sync [r] [placeholder | folder ]
 		cd
-			syncs a folder an the folders that first folders it contains
+			[refreshes / syncs] a [file/file handler] then ges into int
 			folder
 			$ odr cd [folder]
 		rm
@@ -322,78 +322,65 @@ if [[ $comando == "cd" ]]
 	then
 	
 	#check if file exist
-	directorio=$2
-	if [ ! -d "$directorio" ]
+	if [ -d "$2" ]
 	then
-		echo "Err : odr cd : $directorio no es un directorio o no existe"
+
+		odrive refresh "$2"
+		while [[ $(odrive syncstate '$2') =~ 'Active.*' ]]; do
+		sleep 2
+		done
+		cd "$2"
+		$SHELL
 		exit
-	fi;
 
-	#   refresh
+	fi
 
-	odrive refresh $directorio
-	while [[ $(odrive syncstate "$directorio") =~ 'Active.*' ]]; do
-	sleep 2
-	done
+	#	If is a cloud file
+	if [[  "$2" == *.cloudf ]]
+	then
 
-	archivos=($(ls -l "$directorio" | grep "cloudf$" | tr -s " " | cut -d" " -f9-  | tr " " ¬))
-	if [[ ! -z "$archivos" ]]; then
-	for i in "${archivos[@]}"
-	do
-		echo $(echo $i | tr ¬ " ")
-		temp="$directorio/$(echo $i | tr ¬ " ")"
-		odrive sync "$temp"
-		while [[ $(odrive syncstate "$temp") =~ 'Active.*' ]]; do
+		odrive sync "$2"
+		while [[ $(odrive syncstate "$2") =~ 'Active.*' ]]; do
 			sleep 2
 		done
-	done
+		directorio="${2%.*}"
+		cd "$directorio"
+		$SHELL
+		exit
+
 	fi
-	
-	cd $directorio
+	echo "Err : odr cd : $2 no es un directorio o no existe"
 	exit
 fi
 #	odrivish rm
 if [[ $comando == "rm" ]]
 	then
-	
-	
-	if [[ $2 == "-r" ]]
-		then
-		argumento="r"
-		directorio=$3
-	else
-		argumento=" "
-		directorio=$2
-	fi
-	
-	if [ ! -e "$directorio" ]
-		then
-		echo "$directorio no xiste"
-		exit
-	fi
-	
-	#   refresh
 
-	if [[ $directorio =~ .*\.cloud$ ]]
+	#	verify the file exists
+	if [ ! -e "$2" ]
 		then
-		echo "Err : odr rm : los manejadores no son válidos"
+		echo "$2 no xiste"
 		exit
 	fi
-	if [[ $directorio =~ .*\.cloudf ]]
-		then
-		echo "Err : odr rm : los manejadores no son válidos"
-		exit
-	fi
-	rm -R $directorio
+	
+	#   remove
+	rm -R $2
+
+	#	refresh local
 	odrive refresh .
-	while [[ $(odrive status | grep Trash: | cut -f2 -d" " ) -eq '0' ]]; do
-	sleep 2
+	while [[ $(odrive syncstate "$2") =~ 'Active.*' ]]; do
+		sleep 2
 	done
+
+	#	emptytrash
 	odrive emptytrash
+	while [[ $(odrive status | grep Trash: | cut -f2 -d" " ) -eq '0' ]]; do
+		sleep 2
+	done
 
 	exit
 fi
 
 
 echo " Err : Command not recognized"
-echo " odr help"
+odr help

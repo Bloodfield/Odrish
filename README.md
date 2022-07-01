@@ -135,7 +135,7 @@ args:
       --waiting        get status of waiting items
       --not_allowed    get status of not allowed items
 
-###		cd
+###		cd (not implemented)
 syncs a folder an the folders that first folders it contains
 folder
 ```
@@ -158,6 +158,5 @@ odr rm [file | folder]
 ##	TODO
 
 + cd to a .cloudf
-+ Add updater
 + target sync / refresh
 
