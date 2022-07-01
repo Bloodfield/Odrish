@@ -135,7 +135,7 @@ args:
       --waiting        get status of waiting items
       --not_allowed    get status of not allowed items
 
-###		cd (not implemented)
+###		cd
 syncs a folder an the folders that first folders it contains
 folder
 ```
@@ -148,6 +148,15 @@ file or folder
 odr rm [file | folder]
 ```
 
+###		target
+
+creates a list of directories to be recursively synced
+```
+odr target [ add | sync ] [args]
+```
+add = takes a directory path and add it to the list
+sync = takes no arguments, syncs everything in the list
+
 #	References
 
 +	[Odrive-cli](https://docs.odrive.com/docs/odrive-cli) documentation.
@@ -156,7 +165,4 @@ odr rm [file | folder]
 
 
 ##	TODO
-
-+ cd to a .cloudf
-+ target sync / refresh
 

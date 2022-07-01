@@ -48,6 +48,9 @@ if [[ $# -gt 0 ]]; then
 			echo "# Odrish configs" > $HOME/.Odrish/config
 		fi
 
+		#	Make target file
+		touch $HOME/.Odrish/target
+
 		#	Selecting agent
 		sed -i '/^alias odrive=.*$/d' $HOME/.Odrish/config
 		if [[ $2 == "B" ]]; then
@@ -59,7 +62,8 @@ if [[ $# -gt 0 ]]; then
 		echo "alias odrive='$odrive'" >> $HOME/.Odrish/config
 		sed -i '/^$/d' $HOME/.Odrish/config
 		exit
-	##	INSTALL
+
+	##	UPGRADE
 	elif [[ $1 == "Up" ]]; then
 
 		#	Log

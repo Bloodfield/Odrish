@@ -115,6 +115,8 @@ if [[ $comando == "status" ]]
 	then
 	odrive status $2
 	cat ~/.Odrish/config
+	echo Targets:
+	cat ~/.Odrish/target
 	exit
 fi
 
@@ -122,7 +124,7 @@ fi
 #	Mount directory
 if [[ $comando == "mount" ]]
 	then
-	if [ ! -d $2 ]; then
+	if [ ! -d "$2" ]; then
 		echo "Directory $2 does not exist"
 		exit
 	fi
@@ -352,6 +354,7 @@ if [[ $comando == "cd" ]]
 	echo "Err : odr cd : $2 no es un directorio o no existe"
 	exit
 fi
+
 #	odrivish rm
 if [[ $comando == "rm" ]]
 	then
@@ -379,6 +382,65 @@ if [[ $comando == "rm" ]]
 	done
 
 	exit
+fi
+
+#	target
+if [[ $comando == "target" ]]
+	then
+
+	if [ $2 == "add" ]; then
+		if [ ! -d "$3" ]; then
+		echo "Directory $3 does not exist"
+		exit
+		fi
+		echo $3 >> ~/.Odrish/target
+		exit
+	fi
+
+	if [ $2 == "rm" ]; then
+		if [ ! -d "$3" ]; then
+		echo "Directory $3 does not exist"
+		exit
+		fi
+		sed -i "\:${3}:d" ~/.Odrish/target
+		exit
+	fi
+
+	if [ $2 == "ls" ]; then
+		cat ~/.Odrish/target
+		exit
+	fi
+
+	if [ $2 == "sync" ]; then
+		while IFS="" read -r p || [ -n "$p" ]
+		do
+			if [ ! -e "$p" ]
+				then
+				echo "$p no xiste"
+				exit
+			fi
+			directorio=$(echo $p | sed 's/\([^[:alnum:]/]\)/\\\1/g')
+			odr sync r "$directorio"
+		done < ~/.Odrish/target
+		exit
+	fi
+
+	if [ $2 == "refresh" ]; then
+		while IFS="" read -r p || [ -n "$p" ]
+		do
+			if [ ! -e "$p" ]
+				then
+				echo "$p no xiste"
+				exit
+			fi
+# 			directorio=$(echo $p | sed 's/\([^[:alnum:]/]\)/\\\1/g')
+# 			odr refresh r "$directorio"
+			odr refresh r "$p"
+		done < ~/.Odrish/target
+		exit
+	fi
+
+
 fi
 
 
