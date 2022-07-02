@@ -136,13 +136,13 @@ fi
 if [[ $comando == "mount" ]]
 	then
 	if [ ! -d "$2" ]; then
-		echo "Directory $2 does not exist"
+		echo "Err: Mount: Directory $2 does not exist"
 		exit
 	fi
 	
 	#	check if there is something mounted exit
 	if [[ ! -z "$mountdir" ]]; then
-		echo "Already mounted:"
+		echo "Warn: Mount: Already mounted:"
 		echo $mountdir
 		exit
 	fi
@@ -214,7 +214,7 @@ if [[ $comando == "refresh" ]]
 	#   refresh main dir
 	if [[ $directorio =~ .*\.cloud$ ]]
 		then
-		echo "$directorio is not a directory or .cloudf file"
+		echo "Err : refresh : $directorio is not a directory or .cloudf file"
 		exit
 	fi
 
@@ -263,7 +263,7 @@ if [[ $comando == "sync" ]]
 	
 	if [ ! -e "$directorio" ]
 		then
-		echo "Err : sync : $directorio does not exist"
+		echo "Err: sync: $directorio does not exist"
 		exit
 	fi
 
@@ -290,7 +290,7 @@ if [[ $comando == "sync" ]]
 			sleep 2
 		done	
 	else
-		echo "Wrong tipe of file or directory"
+		echo "Err: sync: $directorio Wrong tipe of file or directory"
 		exit
 	fi
 
@@ -362,7 +362,7 @@ if [[ $comando == "cd" ]]
 		exit
 
 	fi
-	echo "Err : odr cd : $2 no es un directorio o no existe"
+	echo "Err: cd: $2 is not a directory or does not exist"
 	exit
 fi
 
@@ -373,7 +373,7 @@ if [[ $comando == "rm" ]]
 	#	verify the file exists
 	if [ ! -e "$2" ]
 		then
-		echo "$2 no xiste"
+		echo "Err: rm: $2 does not exist"
 		exit
 	fi
 	
@@ -395,13 +395,47 @@ if [[ $comando == "rm" ]]
 	exit
 fi
 
+#	odrivish mv
+if [[ $comando == "mv" ]]
+	then
+
+	#	verify the file exists
+	if [ ! -e "$2" ]
+		then
+		echo "Err: mv: $2 does not exist"
+		exit
+	fi
+	if [ ! -d "$3" ]
+		then
+		echo "Err: mv: $3 is not a directory or does not exist"
+		exit
+	fi
+
+	#   move
+	mv "$2" "$3"
+
+	#	refresh local
+	directory=($(dirname $2))
+	echo "$directory"
+	odrive refresh $directory
+	while [[ $(odrive syncstate "$directory") =~ 'Active.*' ]]; do
+		sleep 2
+	done
+	odrive refresh $3
+	while [[ $(odrive syncstate "$3") =~ 'Active.*' ]]; do
+		sleep 2
+	done
+
+	exit
+fi
+
 #	target
 if [[ $comando == "target" ]]
 	then
 
 	if [ $2 == "add" ]; then
 		if [ ! -d "$3" ]; then
-		echo "Directory $3 does not exist"
+		echo "Err: target add: $3 does not exist"
 		exit
 		fi
 		echo $3 >> ~/.Odrish/target
@@ -410,7 +444,7 @@ if [[ $comando == "target" ]]
 
 	if [ $2 == "rm" ]; then
 		if [ ! -d "$3" ]; then
-		echo "Directory $3 does not exist"
+		echo "Err: target rm: $3 does not exist"
 		exit
 		fi
 		sed -i "\:${3}:d" ~/.Odrish/target
@@ -427,7 +461,7 @@ if [[ $comando == "target" ]]
 		do
 			if [ ! -e "$p" ]
 				then
-				echo "$p no xiste"
+				echo "Err: target sync: $p does not exist"
 				exit
 			fi
 			directorio=$(echo $p | sed 's/\([^[:alnum:]/]\)/\\\1/g')
@@ -441,7 +475,7 @@ if [[ $comando == "target" ]]
 		do
 			if [ ! -e "$p" ]
 				then
-				echo "$p no xiste"
+				echo "Err: target refresh: $p does not exist"
 				exit
 			fi
 # 			directorio=$(echo $p | sed 's/\([^[:alnum:]/]\)/\\\1/g')

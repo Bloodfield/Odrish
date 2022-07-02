@@ -11,6 +11,7 @@ Administrative processes:
 + sart the agent 
 + shutdown the agent
 + view your status
++ empty trash
 
 Update
 + sync data (also recursively)
@@ -20,6 +21,8 @@ Surf trough the files
 + rm and sync files 
 + cd through files whith syncs
 + mv files
+
+Target files for recurrent sync/refresh
 
 ##	Requirements
 
@@ -147,6 +150,12 @@ file or folder
 ```
 odr rm [file | folder]
 ```
+###		mv
+moves a file or folder, both locally and in the cloud
+file or folder
+```
+odr mv  [source : file | folder | handler ] [target folder]
+```
 
 ###		target
 
@@ -167,6 +176,10 @@ refresh = takes no arguments, reresh everything in the list
 +	[General](https://docs.odrive.com/docs/odrive-sync-agent#sync-agent-and-cli-overview?utm_source=medium-cli-magic&utm_medium=blog&utm_campaign=general) documentation
 +	[Sync CLIent Magic](https://medium.odrive.com/sync-client-magic-602d858731de) Blog post
 
+#   Backnotes
 
-##	TODO
+The odrive-agent is installed in ~/.odrive-agent/
+The Odrish interface is installed in ~/.Odrish/ and ~/.local/bin/odr
+
+#	TODO
 
