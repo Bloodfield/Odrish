@@ -150,12 +150,16 @@ odr rm [file | folder]
 
 ###		target
 
-creates a list of directories to be recursively synced
+creates a list of directories to be recursively synced/refreshed
+This is usefull if you have recurrent directories to be synced/refreshed
 ```
-odr target [ add | sync ] [args]
+odr target [ add | rm | ls | sync | refresh ] [args]
 ```
 add = takes a directory path and add it to the list
+rm = removes a directory path from the list
+ls = takes no arguments, lists all targeted directories
 sync = takes no arguments, syncs everything in the list
+refresh = takes no arguments, reresh everything in the list
 
 #	References
 

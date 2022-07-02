@@ -5,9 +5,6 @@
 #   By	Bloodfield
 
 ##	TODO
-#	cd *.cloudf
-#	to eng
-#	targueted refresh 
 
 #   variables
 shopt -s expand_aliases
@@ -84,6 +81,20 @@ if [[ $comando == "help" ]]
 			deletes a file or folder, both locally and in the cloud
 			file or folder
 			$ odr rm [file | folder]
+		target
+			Manages tareted directories for authomatic sync/refresh
+			add
+				takes a directory path and add it to the list
+			rm
+				removes a directory path from the list
+			ls
+				takes no arguments, lists all targeted directories
+			sync
+				takes no arguments, syncs everything in the list
+			refresh
+				takes no arguments, reresh everything in the list
+			$ odr target [ add | rm | ls | sync | refresh ] [args]
+
 	"	
 	exit
 fi
