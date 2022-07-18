@@ -255,13 +255,13 @@ if [[ $comando == "sync" ]]
 	if [[ $2 == "r" ]]
 		then
 		argumento="r"
-		directorio=$3
+		directorio="$3"
 	else
 		argumento=" "
-		directorio=$2
+		directorio="$2"
 	fi
 	
-	if [ ! -e "$directorio" ]
+	if [ ! -e "${directorio}" ]
 		then
 		echo "Err: sync: $directorio does not exist"
 		exit
@@ -317,7 +317,7 @@ if [[ $comando == "sync" ]]
 		fi
 		
 		#	Reportar problemas en el log
-		archivos=($(find $directorio -iname '*cloud*' ))
+		archivos=($(find "${directorio}" -iname '*cloud*' ))
 		if [[ ! -z "$archivos" ]]; then
 			date >> ~/.Odrish/Log
 			echo sync failed for: >> ~/.Odrish/Log
@@ -459,13 +459,12 @@ if [[ $comando == "target" ]]
 	if [ $2 == "sync" ]; then
 		while IFS="" read -r p || [ -n "$p" ]
 		do
-			if [ ! -e "$p" ]
+			if [ ! -e "${p}" ]
 				then
 				echo "Err: target sync: $p does not exist"
 				exit
 			fi
-			directorio=$(echo $p | sed 's/\([^[:alnum:]/]\)/\\\1/g')
-			odr sync r "$directorio"
+			odr sync r "$p"
 		done < ~/.Odrish/target
 		exit
 	fi
@@ -473,13 +472,11 @@ if [[ $comando == "target" ]]
 	if [ $2 == "refresh" ]; then
 		while IFS="" read -r p || [ -n "$p" ]
 		do
-			if [ ! -e "$p" ]
+			if [ ! -e "${p}" ]
 				then
 				echo "Err: target refresh: $p does not exist"
 				exit
 			fi
-# 			directorio=$(echo $p | sed 's/\([^[:alnum:]/]\)/\\\1/g')
-# 			odr refresh r "$directorio"
 			odr refresh r "$p"
 		done < ~/.Odrish/target
 		exit
